@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Linq;
-
+using System.Linq.Expressions;
 using static CloudyWing.Spreadsheet.ListTemplateUtils;
 
 namespace CloudyWing.Spreadsheet {
@@ -65,8 +65,8 @@ namespace CloudyWing.Spreadsheet {
         /// <param name="headerText">標題要顯示的文字</param>
         /// <param name="dataKey">對應資料的Property</param>
         /// <param name="render">修正顯示資料內容的委派，委派第一個參數為DatayKey對應的資料值，第二個參數為整筆資料物件</param>
-        /// <param name="headerStyle">標題的儲存格格式，預設DefaultDataHeaderCellStyle</param>
-        /// <param name="itemStyle">資料的儲存格式，預設DefaultDataCellStyle</param>
+        /// <param name="headerStyle">標題的儲存格格式，預設ListTemplateUtils.HeaderStyle</param>
+        /// <param name="itemStyle">資料的儲存格式，預設ListTemplateUtils.TextStyle</param>
         public void Add(
             string headerText, string dataKey = "",
             Func<object, T, object> render = null,
@@ -88,82 +88,198 @@ namespace CloudyWing.Spreadsheet {
         /// 增加一筆DataColumn
         /// </summary>
         /// <param name="headerText">標題要顯示的文字</param>
-        /// <param name="dataKey">對應資料的Property</param>
+        /// <param name="expression">用Expression設定DataKey</param>
         /// <param name="render">修正顯示資料內容的委派，委派第一個參數為DatayKey對應的資料值，第二個參數為整筆資料物件</param>
-        /// <param name="headerStyle">標題的儲存格格式，預設DefaultDataHeaderCellStyle</param>
-        /// <param name="dataStyleExpression">資料的儲存格式，依資料決定顯示內容的委派</param>
+        /// <param name="headerStyle">標題的儲存格格式，預設ListTemplateUtils.HeaderStyle</param>
+        /// <param name="itemStyle">資料的儲存格式，預設ListTemplateUtils.TextStyle</param>
         public void Add(
-            string headerText, string dataKey,
-            Func<object, T, object> render,
-            CellStyle? headerStyle, Func<object, T, CellStyle> dataStyleExpression
-        ) {
-            headerStyle = headerStyle ?? HeaderStyle;
-
-            Add(new DataColumn<T>() {
-                HeaderText = headerText,
-                DataKey = dataKey,
-                ContentRender = render,
-                HeaderStyle = (CellStyle)headerStyle,
-                ItemStyleFunctor = dataStyleExpression
-            });
-        }
-
-        /// <summary>
-        /// 增加一筆DataColumn
-        /// </summary>
-        /// <param name="headerText">標題要顯示的文字</param>
-        /// <param name="dataKey">對應資料的Property</param>
-        /// <param name="render">修正顯示資料內容的委派，委派第一個參數為DatayKey對應的資料值，第二個參數為整筆資料物件</param>
-        /// <param name="headerStyle">標題的儲存格格式，預設DefaultDataHeaderCellStyle</param>
-        /// <param name="itemStyle">資料的儲存格式，預設DefaultDataCellStyle</param>
-        public void Add<TProperty>(
-            string headerText, string dataKey = "",
-            Func<TProperty, T, object> render = null,
+            string headerText, Expression<Func<T, object>> expression,
+            Func<object, T, object> render = null,
             CellStyle? headerStyle = null, CellStyle? itemStyle = null
         ) {
             headerStyle = headerStyle ?? HeaderStyle;
             itemStyle = itemStyle ?? TextStyle;
 
-            Add(new DataColumn<TProperty, T>() {
+            Add(new DataColumn<T>() {
                 HeaderText = headerText,
-                DataKey = dataKey,
+                DataKey = GetDataKeyByExpression(expression),
                 ContentRender = render,
                 HeaderStyle = (CellStyle)headerStyle,
                 ItemStyle = (CellStyle)itemStyle
             });
         }
 
-        /// <summary>
-        /// 增加一筆DataColumn
-        /// </summary>
-        /// <param name="headerText">標題要顯示的文字</param>
-        /// <param name="dataKey">對應資料的Property</param>
-        /// <param name="render">修正顯示資料內容的委派，委派第一個參數為DatayKey對應的資料值，第二個參數為整筆資料物件</param>
-        /// <param name="headerStyle">標題的儲存格格式，預設DefaultDataHeaderCellStyle</param>
-        /// <param name="dataStyleExpression">資料的儲存格式，依資料決定顯示內容的委派</param>
-        public void Add<TProperty>(
-            string headerText, string dataKey,
-            Func<TProperty, T, object> render,
-            CellStyle? headerStyle, Func<TProperty, T, CellStyle> dataStyleExpression
-        ) {
-            headerStyle = headerStyle ?? HeaderStyle;
-
-            Add(new DataColumn<TProperty, T>() {
-                HeaderText = headerText,
-                DataKey = dataKey,
-                ContentRender = render,
-                HeaderStyle = (CellStyle)headerStyle,
-                ItemStyleFunctor = dataStyleExpression
-            });
-        }
-
-        public void AddChildToLast(DataColumn<T> childheader) {
-            DataColumn<T> header = this.LastOrDefault();
-            if (header == null) {
-                throw new NullReferenceException($"尚未建立任何{nameof(DataColumn<T>)}!");
+        private string GetDataKeyByExpression(Expression<Func<T, object>> expression) {
+            if (expression == null) {
+                throw new ArgumentNullException(nameof(expression));
             }
 
-            header.ChildColumns.Add(childheader);
+            // 如果是Value Type 的話Body會是UnaryExpression
+            // Reference Type才會是直接取得到MemberExpression
+            UnaryExpression unary = expression.Body as UnaryExpression;
+            MemberExpression member = expression.Body as MemberExpression ??
+                (unary != null ? unary.Operand as MemberExpression : null);
+
+            if (member == null) {
+                throw new ArgumentException($"Expression格式錯誤。", nameof(expression));
+            }
+            return member.Member.Name;
+        }
+
+        /// <summary>
+        /// 增加一筆DataColumn
+        /// </summary>
+        /// <param name="headerText">標題要顯示的文字</param>
+        /// <param name="dataKey">對應資料的Property</param>
+        /// <param name="render">修正顯示資料內容的委派，委派第一個參數為DatayKey對應的資料值，第二個參數為整筆資料物件</param>
+        /// <param name="headerStyle">標題的儲存格格式，預設ListTemplateUtils.HeaderStyle</param>
+        /// <param name="dataStyleFunc">資料的儲存格式，依資料決定顯示內容的委派</param>
+        public void Add(
+            string headerText, string dataKey,
+            Func<object, T, object> render,
+            CellStyle? headerStyle, Func<object, T, CellStyle> dataStyleFunc
+        ) {
+            headerStyle = headerStyle ?? HeaderStyle;
+
+            Add(new DataColumn<T>() {
+                HeaderText = headerText,
+                DataKey = dataKey,
+                ContentRender = render,
+                HeaderStyle = (CellStyle)headerStyle,
+                ItemStyleFunctor = dataStyleFunc
+            });
+        }
+
+        /// <summary>
+        /// 增加一筆DataColumn
+        /// </summary>
+        /// <param name="headerText">標題要顯示的文字</param>
+        /// <param name="expression">用Expression設定DataKey</param>
+        /// <param name="render">修正顯示資料內容的委派，委派第一個參數為DatayKey對應的資料值，第二個參數為整筆資料物件</param>
+        /// <param name="headerStyle">標題的儲存格格式，預設ListTemplateUtils.HeaderStyle</param>
+        /// <param name="dataStyleFunc">資料的儲存格式，依資料決定顯示內容的委派</param>
+        public void Add(
+            string headerText, Expression<Func<T, object>> expression,
+            Func<object, T, object> render,
+            CellStyle? headerStyle, Func<object, T, CellStyle> dataStyleFunc
+        ) {
+            headerStyle = headerStyle ?? HeaderStyle;
+
+            Add(new DataColumn<T>() {
+                HeaderText = headerText,
+                DataKey = GetDataKeyByExpression(expression),
+                ContentRender = render,
+                HeaderStyle = (CellStyle)headerStyle,
+                ItemStyleFunctor = dataStyleFunc
+            });
+        }
+
+        /// <summary>
+        /// 增加一筆DataColumn
+        /// </summary>
+        /// <param name="headerText">標題要顯示的文字</param>
+        /// <param name="dataKey">對應資料的Property</param>
+        /// <param name="render">修正顯示資料內容的委派，委派第一個參數為DatayKey對應的資料值，第二個參數為整筆資料物件</param>
+        /// <param name="headerStyle">標題的儲存格格式，預設ListTemplateUtils.HeaderStyle</param>
+        /// <param name="itemStyle">資料的儲存格式，預設ListTemplateUtils.TextStyle</param>
+        public void Add<TProperty>(
+            string headerText, string dataKey = "",
+            Func<TProperty, T, object> render = null,
+            CellStyle? headerStyle = null, CellStyle? itemStyle = null
+        ) {
+            headerStyle = headerStyle ?? HeaderStyle;
+            itemStyle = itemStyle ?? TextStyle;
+
+            Add(new DataColumn<TProperty, T>() {
+                HeaderText = headerText,
+                DataKey = dataKey,
+                ContentRender = render,
+                HeaderStyle = (CellStyle)headerStyle,
+                ItemStyle = (CellStyle)itemStyle
+            });
+        }
+
+        /// <summary>
+        /// 增加一筆DataColumn
+        /// </summary>
+        /// <param name="headerText">標題要顯示的文字</param>
+        /// <param name="expression">用Expression設定DataKey</param>
+        /// <param name="render">修正顯示資料內容的委派，委派第一個參數為DatayKey對應的資料值，第二個參數為整筆資料物件</param>
+        /// <param name="headerStyle">標題的儲存格格式，預設ListTemplateUtils.HeaderStyle</param>
+        /// <param name="itemStyle">資料的儲存格式，預設ListTemplateUtils.TextStyle</param>
+        public void Add<TProperty>(
+            string headerText, Expression<Func<T, object>> expression,
+            Func<TProperty, T, object> render = null,
+            CellStyle? headerStyle = null, CellStyle? itemStyle = null
+        ) {
+            headerStyle = headerStyle ?? HeaderStyle;
+            itemStyle = itemStyle ?? TextStyle;
+
+            Add(new DataColumn<TProperty, T>() {
+                HeaderText = headerText,
+                DataKey = GetDataKeyByExpression(expression),
+                ContentRender = render,
+                HeaderStyle = (CellStyle)headerStyle,
+                ItemStyle = (CellStyle)itemStyle
+            });
+        }
+
+        /// <summary>
+        /// 增加一筆DataColumn
+        /// </summary>
+        /// <param name="headerText">標題要顯示的文字</param>
+        /// <param name="dataKey">對應資料的Property</param>
+        /// <param name="render">修正顯示資料內容的委派，委派第一個參數為DatayKey對應的資料值，第二個參數為整筆資料物件</param>
+        /// <param name="headerStyle">標題的儲存格格式，預設ListTemplateUtils.HeaderStyle</param>
+        /// <param name="dataStyleExpression">資料的儲存格式，依資料決定顯示內容的委派</param>
+        public void Add<TProperty>(
+            string headerText, string dataKey,
+            Func<TProperty, T, object> render,
+            CellStyle? headerStyle, Func<TProperty, T, CellStyle> dataStyleExpression
+        ) {
+            headerStyle = headerStyle ?? HeaderStyle;
+
+            Add(new DataColumn<TProperty, T>() {
+                HeaderText = headerText,
+                DataKey = dataKey,
+                ContentRender = render,
+                HeaderStyle = (CellStyle)headerStyle,
+                ItemStyleFunctor = dataStyleExpression
+            });
+        }
+
+        /// <summary>
+        /// 增加一筆DataColumn
+        /// </summary>
+        /// <param name="headerText">標題要顯示的文字</param>
+        /// <param name="expression">用Expression設定DataKey</param>
+        /// <param name="render">修正顯示資料內容的委派，委派第一個參數為DatayKey對應的資料值，第二個參數為整筆資料物件</param>
+        /// <param name="headerStyle">標題的儲存格格式，預設ListTemplateUtils.HeaderStyle</param>
+        /// <param name="dataStyleExpression">資料的儲存格式，依資料決定顯示內容的委派</param>
+        public void Add<TProperty>(
+            string headerText, Expression<Func<T, object>> expression,
+            Func<TProperty, T, object> render,
+            CellStyle? headerStyle, Func<TProperty, T, CellStyle> dataStyleExpression
+        ) {
+            headerStyle = headerStyle ?? HeaderStyle;
+
+            Add(new DataColumn<TProperty, T>() {
+                HeaderText = headerText,
+                DataKey = GetDataKeyByExpression(expression),
+                ContentRender = render,
+                HeaderStyle = (CellStyle)headerStyle,
+                ItemStyleFunctor = dataStyleExpression
+            });
+        }
+
+        /// <exception cref="NullReferenceException">尚未建立任何DataColumn<T>。</exception>
+        public void AddChildToLast(DataColumn<T> childHeader) {
+            DataColumn<T> header = this.LastOrDefault();
+            if (header == null) {
+                throw new NullReferenceException($"尚未建立任何{nameof(DataColumn<T>)}。");
+            }
+
+            header.ChildColumns.Add(childHeader);
         }
 
         /// <summary>
@@ -172,18 +288,44 @@ namespace CloudyWing.Spreadsheet {
         /// <param name="headerText">標題要顯示的文字</param>
         /// <param name="dataKey">對應資料的Property</param>
         /// <param name="render">修正顯示資料內容的委派，委派第一個參數為DatayKey對應的資料值，第二個參數為整筆資料物件</param>
-        /// <param name="headerStyle">標題的儲存格格式，預設DefaultDataHeaderCellStyle</param>
-        /// <param name="itemStyle">資料的儲存格式，預設DefaultDataCellStyle</param>
+        /// <param name="headerStyle">標題的儲存格格式，預設ListTemplateUtils.HeaderStyle</param>
+        /// <param name="itemStyle">資料的儲存格式，預設ListTemplateUtils.TextStyle</param>
         public void AddChildToLast(
             string headerText, string dataKey = "",
             Func<object, T, object> render = null,
             CellStyle? headerStyle = null, CellStyle? itemStyle = null
         ) {
             headerStyle = headerStyle ?? HeaderStyle;
-            itemStyle = itemStyle ?? CellStyle.CreateConfigStyle();
+            itemStyle = itemStyle ?? TextStyle;
+
             AddChildToLast(new DataColumn<T>() {
                 HeaderText = headerText,
                 DataKey = dataKey,
+                ContentRender = render,
+                HeaderStyle = (CellStyle)headerStyle,
+                ItemStyle = (CellStyle)itemStyle
+            });
+        }
+
+        /// <summary>
+        /// 增加一筆子DataHeader至目前最後一個DataColumn底下
+        /// </summary>
+        /// <param name="headerText">標題要顯示的文字</param>
+        /// <param name="expression">用Expression設定DataKey</param>
+        /// <param name="render">修正顯示資料內容的委派，委派第一個參數為DatayKey對應的資料值，第二個參數為整筆資料物件</param>
+        /// <param name="headerStyle">標題的儲存格格式，預設ListTemplateUtils.HeaderStyle</param>
+        /// <param name="itemStyle">資料的儲存格式，預設ListTemplateUtils.TextStyle</param>
+        public void AddChildToLast(
+            string headerText, Expression<Func<T, object>> expression,
+            Func<object, T, object> render = null,
+            CellStyle? headerStyle = null, CellStyle? itemStyle = null
+        ) {
+            headerStyle = headerStyle ?? HeaderStyle;
+            itemStyle = itemStyle ?? TextStyle;
+
+            AddChildToLast(new DataColumn<T>() {
+                HeaderText = headerText,
+                DataKey = GetDataKeyByExpression(expression),
                 ContentRender = render,
                 HeaderStyle = (CellStyle)headerStyle,
                 ItemStyle = (CellStyle)itemStyle
@@ -196,7 +338,7 @@ namespace CloudyWing.Spreadsheet {
         /// <param name="headerText">標題要顯示的文字</param>
         /// <param name="dataKey">對應資料的Property</param>
         /// <param name="render">修正顯示資料內容的委派，委派第一個參數為DatayKey對應的資料值，第二個參數為整筆資料物件</param>
-        /// <param name="headerStyle">標題的儲存格格式，預設DefaultDataHeaderCellStyle</param>
+        /// <param name="headerStyle">標題的儲存格格式，預設ListTemplateUtils.HeaderStyle</param>
         /// <param name="dataStyleExpression">資料的儲存格式，依資料決定顯示內容的委派</param>
         public void AddChildToLast(
             string headerText, string dataKey,
@@ -204,9 +346,34 @@ namespace CloudyWing.Spreadsheet {
             CellStyle? headerStyle, Func<object, T, CellStyle> dataStyleExpression
         ) {
             headerStyle = headerStyle ?? HeaderStyle;
+
             AddChildToLast(new DataColumn<T>() {
                 HeaderText = headerText,
                 DataKey = dataKey,
+                ContentRender = render,
+                HeaderStyle = (CellStyle)headerStyle,
+                ItemStyleFunctor = dataStyleExpression
+            });
+        }
+
+        /// <summary>
+        /// 增加一筆子DataColumn至目前最後一個DataColumn底下
+        /// </summary>
+        /// <param name="headerText">標題要顯示的文字</param>
+        /// <param name="expression">用Expression設定DataKey</param>
+        /// <param name="render">修正顯示資料內容的委派，委派第一個參數為DatayKey對應的資料值，第二個參數為整筆資料物件</param>
+        /// <param name="headerStyle">標題的儲存格格式，預設ListTemplateUtils.HeaderStyle</param>
+        /// <param name="dataStyleExpression">資料的儲存格式，依資料決定顯示內容的委派</param>
+        public void AddChildToLast(
+            string headerText, Expression<Func<T, object>> expression,
+            Func<object, T, object> render,
+            CellStyle? headerStyle, Func<object, T, CellStyle> dataStyleExpression
+        ) {
+            headerStyle = headerStyle ?? HeaderStyle;
+
+            AddChildToLast(new DataColumn<T>() {
+                HeaderText = headerText,
+                DataKey = GetDataKeyByExpression(expression),
                 ContentRender = render,
                 HeaderStyle = (CellStyle)headerStyle,
                 ItemStyleFunctor = dataStyleExpression
@@ -219,18 +386,44 @@ namespace CloudyWing.Spreadsheet {
         /// <param name="headerText">標題要顯示的文字</param>
         /// <param name="dataKey">對應資料的Property</param>
         /// <param name="render">修正顯示資料內容的委派，委派第一個參數為DatayKey對應的資料值，第二個參數為整筆資料物件</param>
-        /// <param name="headerStyle">標題的儲存格格式，預設DefaultDataHeaderCellStyle</param>
-        /// <param name="itemStyle">資料的儲存格式，預設DefaultDataCellStyle</param>
+        /// <param name="headerStyle">標題的儲存格格式，預設ListTemplateUtils.HeaderStyle</param>
+        /// <param name="itemStyle">資料的儲存格式，預設ListTemplateUtils.TextStyle</param>
         public void AddChildToLast<TProperty>(
             string headerText, string dataKey = "",
             Func<TProperty, T, object> render = null,
             CellStyle? headerStyle = null, CellStyle? itemStyle = null
         ) {
             headerStyle = headerStyle ?? HeaderStyle;
-            itemStyle = itemStyle ?? CellStyle.CreateConfigStyle();
+            itemStyle = itemStyle ?? TextStyle;
+
             AddChildToLast(new DataColumn<TProperty, T>() {
                 HeaderText = headerText,
                 DataKey = dataKey,
+                ContentRender = render,
+                HeaderStyle = (CellStyle)headerStyle,
+                ItemStyle = (CellStyle)itemStyle
+            });
+        }
+
+        /// <summary>
+        /// 增加一筆子DataHeader至目前最後一個DataColumn底下
+        /// </summary>
+        /// <param name="headerText">標題要顯示的文字</param>
+        /// <param name="expression">用Expression設定DataKey</param>
+        /// <param name="render">修正顯示資料內容的委派，委派第一個參數為DatayKey對應的資料值，第二個參數為整筆資料物件</param>
+        /// <param name="headerStyle">標題的儲存格格式，預設ListTemplateUtils.HeaderStyle</param>
+        /// <param name="itemStyle">資料的儲存格式，預設ListTemplateUtils.TextStyle</param>
+        public void AddChildToLast<TProperty>(
+            string headerText, Expression<Func<T, object>> expression,
+            Func<TProperty, T, object> render = null,
+            CellStyle? headerStyle = null, CellStyle? itemStyle = null
+        ) {
+            headerStyle = headerStyle ?? HeaderStyle;
+            itemStyle = itemStyle ?? TextStyle;
+
+            AddChildToLast(new DataColumn<TProperty, T>() {
+                HeaderText = headerText,
+                DataKey = GetDataKeyByExpression(expression),
                 ContentRender = render,
                 HeaderStyle = (CellStyle)headerStyle,
                 ItemStyle = (CellStyle)itemStyle
@@ -243,7 +436,7 @@ namespace CloudyWing.Spreadsheet {
         /// <param name="headerText">標題要顯示的文字</param>
         /// <param name="dataKey">對應資料的Property</param>
         /// <param name="render">修正顯示資料內容的委派，委派第一個參數為DatayKey對應的資料值，第二個參數為整筆資料物件</param>
-        /// <param name="headerStyle">標題的儲存格格式，預設DefaultDataHeaderCellStyle</param>
+        /// <param name="headerStyle">標題的儲存格格式，預設ListTemplateUtils.HeaderStyle</param>
         /// <param name="dataStyleExpression">資料的儲存格式，依資料決定顯示內容的委派</param>
         public void AddChildToLast<TProperty>(
             string headerText, string dataKey,
@@ -251,9 +444,34 @@ namespace CloudyWing.Spreadsheet {
             CellStyle? headerStyle, Func<TProperty, T, CellStyle> dataStyleExpression
         ) {
             headerStyle = headerStyle ?? HeaderStyle;
+
             AddChildToLast(new DataColumn<TProperty, T>() {
                 HeaderText = headerText,
                 DataKey = dataKey,
+                ContentRender = render,
+                HeaderStyle = (CellStyle)headerStyle,
+                ItemStyleFunctor = dataStyleExpression
+            });
+        }
+
+        /// <summary>
+        /// 增加一筆子DataColumn至目前最後一個DataColumn底下
+        /// </summary>
+        /// <param name="headerText">標題要顯示的文字</param>
+        /// <param name="expression">用Expression設定DataKey</param>
+        /// <param name="render">修正顯示資料內容的委派，委派第一個參數為DatayKey對應的資料值，第二個參數為整筆資料物件</param>
+        /// <param name="headerStyle">標題的儲存格格式，預設ListTemplateUtils.HeaderStyle</param>
+        /// <param name="dataStyleExpression">資料的儲存格式，依資料決定顯示內容的委派</param>
+        public void AddChildToLast<TProperty>(
+            string headerText, Expression<Func<T, object>> expression,
+            Func<TProperty, T, object> render,
+            CellStyle? headerStyle, Func<TProperty, T, CellStyle> dataStyleExpression
+        ) {
+            headerStyle = headerStyle ?? HeaderStyle;
+
+            AddChildToLast(new DataColumn<TProperty, T>() {
+                HeaderText = headerText,
+                DataKey = GetDataKeyByExpression(expression),
                 ContentRender = render,
                 HeaderStyle = (CellStyle)headerStyle,
                 ItemStyleFunctor = dataStyleExpression

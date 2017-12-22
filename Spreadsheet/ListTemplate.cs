@@ -75,19 +75,19 @@ namespace CloudyWing.Spreadsheet {
             }
         }
 
-        /// <exception cref="ArgumentNullException">未指定資料來源</exception>
-        /// <exception cref="ArgumentNullException">資料來源未包含Property</exception>
+        /// <exception cref="NullReferenceException">未指定資料來源</exception>
+        /// <exception cref="ArgumentException">資料來源未包含Property</exception>
         public TemplateContext GetContext() {
             Validate();
             return new TemplateContext(Cells, ColumnSpan, RowSpan, RowHeights);
         }
 
-        /// <exception cref="ArgumentNullException">未指定資料來源</exception>
-        /// <exception cref="ArgumentNullException">資料來源未包含Property</exception>
+        /// <exception cref="NullReferenceException">未指定資料來源。</exception>
+        /// <exception cref="ArgumentException">資料來源未包含Property。</exception>
         private void Validate() {
             if (Columns.Count > 0) {
                 if (DataSource == null) {
-                    throw new ArgumentNullException("未指定資料來源!");
+                    throw new NullReferenceException("未指定資料來源。");
                 }
 
                 if (DataSource.Count() == 0) {
@@ -97,7 +97,7 @@ namespace CloudyWing.Spreadsheet {
                 IDictionary<string, object> firstData = ConvertToDictionary(DataSource.First());
                 foreach (DataColumn<T> col in Columns.DataSourceColumns) {
                     if (!string.IsNullOrWhiteSpace(col.DataKey) && !firstData.ContainsKey(col.DataKey)) {
-                        throw new ArgumentNullException($"資料來源未包含Property「{col.DataKey}」!");
+                        throw new ArgumentException($"資料來源未包含Property「{col.DataKey}」。");
                     }
                 }
             }

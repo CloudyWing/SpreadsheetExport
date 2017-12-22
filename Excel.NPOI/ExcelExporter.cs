@@ -14,7 +14,7 @@ namespace CloudyWing.Spreadsheet.Excel.NPOI {
     /// <summary>
     /// 使用NPOI進行Excel匯出
     /// </summary>
-    public class ExcelExporter : IExportable {
+    public class ExcelExporter : ExporterBase {
 
         private IWorkbook workbook;
         private IDictionary<CellStyle, ICellStyle> cellStyles = new Dictionary<CellStyle, ICellStyle>();
@@ -44,11 +44,11 @@ namespace CloudyWing.Spreadsheet.Excel.NPOI {
 
         public bool IsXLS => ExcelFormat == ExcelFormat.XLS;
 
-        public string ContentType => "application/ms-excel";
+        public override string ContentType => "application/ms-excel";
 
-        public string FileNameExtension => $".{ExcelFormat.ToString().ToLower()}";
+        public override string FileNameExtension => $".{ExcelFormat.ToString().ToLower()}";
 
-        public byte[] Export(IEnumerable<SheeterContext> contexts) {
+        protected override byte[] ExecuteExport(SheeterContext[] contexts) {
 
             lock(thisLock) {
 

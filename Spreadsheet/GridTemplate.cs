@@ -41,17 +41,17 @@ namespace CloudyWing.Spreadsheet {
             rows.Add(new CellCollection(this));
         }
 
-        /// <exception cref="ArgumentOutOfRangeException">ColumnSpan不可小於1</exception>
-        /// <exception cref="ArgumentOutOfRangeException">RowSpan不可小於1</exception>
+        /// <exception cref="ArgumentOutOfRangeException">ColumnSpan不可小於1。</exception>
+        /// <exception cref="ArgumentOutOfRangeException">RowSpan不可小於1。</exception>
         public Cell CreateCell(
             object value, int columnSpan = 1, int rowSpan = 1,
             CellStyle? cellStyle = null
         ) {
             if (columnSpan <= 0) {
-                throw new ArgumentOutOfRangeException(nameof(columnSpan), "ColumnSpan不可小於1");
+                throw new ArgumentOutOfRangeException(nameof(columnSpan), "ColumnSpan不可小於1。");
             }
             if (rowSpan <= 0) {
-                throw new ArgumentOutOfRangeException(nameof(rowSpan), "RowSpan不可小於1");
+                throw new ArgumentOutOfRangeException(nameof(rowSpan), "RowSpan不可小於1。");
             }
             cellStyle = cellStyle ?? CellStyle.CreateConfigStyle();
 
@@ -102,7 +102,7 @@ namespace CloudyWing.Spreadsheet {
                         }
                         Point point = item.Point + new Size(colOffset, rowOffset);
                         if (IsPointExists(point)) {
-                            throw new ArgumentException($"座標({colOffset}, {rowOffset})重複");
+                            throw new ArgumentException($"座標({colOffset}, {rowOffset})重複。");
                         }
                         grid.points.Add(point);
                     }

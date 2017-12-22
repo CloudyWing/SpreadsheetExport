@@ -5,7 +5,7 @@ using OfficeOpenXml.Style;
 
 namespace CloudyWing.Spreadsheet.Excel.EPPlus {
 
-    public class ExcelExporter : IExportable {
+    public class ExcelExporter : ExporterBase {
 
         private Dictionary<HorizontalAlignment, ExcelHorizontalAlignment> horizontalAlignmentMap = new Dictionary<HorizontalAlignment, ExcelHorizontalAlignment>() {
             [HorizontalAlignment.None] = ExcelHorizontalAlignment.General,
@@ -21,11 +21,11 @@ namespace CloudyWing.Spreadsheet.Excel.EPPlus {
             [VerticalAlignment.Bottom] = ExcelVerticalAlignment.Bottom
         };
 
-        public string ContentType => "application/ms-excel";
+        public override string ContentType => "application/ms-excel";
 
-        public string FileNameExtension => ".xlsx";
+        public override string FileNameExtension => ".xlsx";
 
-        public byte[] Export(IEnumerable<SheeterContext> contexts) {
+        protected override byte[] ExecuteExport(SheeterContext[] contexts) {
             using (ExcelPackage ep = new ExcelPackage()) {
                 foreach (SheeterContext context in contexts) {
                     CreateSheetToWorkbook(ep.Workbook, context);

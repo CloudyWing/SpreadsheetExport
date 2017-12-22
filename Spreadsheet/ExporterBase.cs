@@ -8,15 +8,18 @@ namespace CloudyWing.Spreadsheet {
     /// <summary>
     /// 電子表格，用來設定電子表格內容將之輸出至Exporter
     /// </summary>
-    public sealed class Workbook {
+    public abstract class ExporterBase {
 
         private IList<Sheeter> sheeters = new List<Sheeter>();
-        private IExportable exporter;
 
         /// <summary>
         /// 取得最新的工作表，若無則建立一個工作表
         /// </summary>
         public Sheeter LastSheeter => sheeters.LastOrDefault() ?? CreateSheeter(null);
+
+        public abstract string ContentType { get; }
+
+        public abstract string FileNameExtension { get; }
 
         public Sheeter CreateSheeter(string sheetName = "") {
             if (string.IsNullOrWhiteSpace(sheetName)) {
@@ -55,22 +58,13 @@ namespace CloudyWing.Spreadsheet {
             return fixedSheetName;
         }
 
-        public void SetExporter(IExportable exporter) {
-            this.exporter = exporter;
-        }
-
         /// <summary>
         /// 電子表格匯出
         /// </summary>
-        /// <exception cref="ArgumentNullException">未建立任何工作表</exception>
+        /// <exception cref="ArgumentNullException">未建立任何工作表。</exception>
         public Byte[] Export() {
             Validate();
-            return InternalExport();
-        }
-
-        private Byte[] InternalExport() {
             SheeterContext[] contexts = new SheeterContext[sheeters.Count];
-
             for (int i = 0; i < sheeters.Count; i++) {
                 Sheeter sheeter = sheeters[i];
 
@@ -80,13 +74,15 @@ namespace CloudyWing.Spreadsheet {
                     sheeter.ColumnWidths.ToDictionary(x => x.Key, x => x.Value)
                 );
             }
-            return exporter.Export(contexts);
+            return ExecuteExport(contexts);
         }
 
-        /// <exception cref="ArgumentNullException">未建立任何工作表</exception>
+        protected abstract Byte[] ExecuteExport(SheeterContext[] contexts);
+
+        /// <exception cref="NullReferenceException">未建立任何工作表。</exception>
         private void Validate() {
             if (sheeters.Count == 0) {
-                throw new ArgumentNullException("未建立任何工作表!!!");
+                throw new NullReferenceException("未建立任何工作表。");
             }
         }
 
@@ -94,11 +90,10 @@ namespace CloudyWing.Spreadsheet {
         /// 匯出至檔案，若檔案已存在則覆寫
         /// </summary>
         /// <param name="path">欲儲存檔案路徑</param>
-        /// <exception cref="ArgumentNullException">未建立任何工作表</exception>
+        /// <exception cref="NullReferenceException">未建立任何工作表。</exception>
         public void ExportFile(string path) {
-            Validate();
             using (FileStream fileStream = new FileStream(path, FileMode.Create, FileAccess.Write)) {
-                byte[] bytes = InternalExport();
+                byte[] bytes = Export();
                 fileStream.Write(bytes, 0, bytes.Length);
             }
         }

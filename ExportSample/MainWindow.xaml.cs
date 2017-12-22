@@ -14,31 +14,27 @@ namespace ExportSample {
         }
 
         private void ExportNpoiXls(object sender, RoutedEventArgs e) {
-            Workbook workbook = CreateWorkBook();
-            CloudyWing.Spreadsheet.Excel.NPOI.ExcelExporter exporter = new CloudyWing.Spreadsheet.Excel.NPOI.ExcelExporter();
-            workbook.SetExporter(exporter);
-            workbook.ExportFile($@"{txtPath.Text}\{DateTime.Now.ToString("yyyyMMddhhmmss")}.{exporter.FileNameExtension}");
+            ExporterBase exporter = new CloudyWing.Spreadsheet.Excel.NPOI.ExcelExporter();
+            CreateExportkContent(exporter);
+            exporter.ExportFile($@"{txtPath.Text}\{DateTime.Now.ToString("yyyyMMddhhmmss")}.{exporter.FileNameExtension}");
         }
 
         private void ExportNpoiXlsx(object sender, RoutedEventArgs e) {
-            Workbook workbook = CreateWorkBook();
-            CloudyWing.Spreadsheet.Excel.NPOI.ExcelExporter exporter = new CloudyWing.Spreadsheet.Excel.NPOI.ExcelExporter(
+            ExporterBase exporter = new CloudyWing.Spreadsheet.Excel.NPOI.ExcelExporter(
                 CloudyWing.Spreadsheet.Excel.NPOI.ExcelFormat.XLSX
             );
-            workbook.SetExporter(exporter);
-            workbook.ExportFile($@"{txtPath.Text}\{DateTime.Now.ToString("yyyyMMddhhmmss")}.{exporter.FileNameExtension}");
+            CreateExportkContent(exporter);
+            exporter.ExportFile($@"{txtPath.Text}\{DateTime.Now.ToString("yyyyMMddhhmmss")}.{exporter.FileNameExtension}");
         }
 
         private void ExportEPPlus(object sender, RoutedEventArgs e) {
-            Workbook workbook = CreateWorkBook();
-            CloudyWing.Spreadsheet.Excel.EPPlus.ExcelExporter exporter = new CloudyWing.Spreadsheet.Excel.EPPlus.ExcelExporter();
-            workbook.SetExporter(exporter);
-            workbook.ExportFile($@"{txtPath.Text}\{DateTime.Now.ToString("yyyyMMddhhmmss")}.{exporter.FileNameExtension}");
+            ExporterBase exporter = new CloudyWing.Spreadsheet.Excel.EPPlus.ExcelExporter();
+            CreateExportkContent(exporter);
+            exporter.ExportFile($@"{txtPath.Text}\{DateTime.Now.ToString("yyyyMMddhhmmss")}.{exporter.FileNameExtension}");
         }
 
-        private Workbook CreateWorkBook() {
-            Workbook workbook = new Workbook();
-            Sheeter sheeter = workbook.CreateSheeter();
+        private void CreateExportkContent(ExporterBase exporter) {
+            Sheeter sheeter = exporter.CreateSheeter();
 
             // 建立Excel 1~4列(第二列跨三列)
             GridTemplate gt = new GridTemplate();
@@ -66,7 +62,7 @@ namespace ExportSample {
 
             sheeter.AddTemplate(gt);
 
-            // Excel 9~12列(1個父標題、一個主標題和兩筆資料)
+            // Excel 9~15列(一個父標題、一個主標題和五筆資料)
             ListTemplate<Person> lt = new ListTemplate<Person>();
             lt.HeaderHeight = 40d;
             lt.ItemHeight = 50d;
@@ -74,7 +70,7 @@ namespace ExportSample {
             lt.Columns.Add("合併標題");
             // 使用DataColumn<T>
             lt.Columns.AddChildToLast(
-                "姓名", "Name",
+                "姓名", "name",
                 (x, y) => y.Age > 18 ? x + " 大人" : x,
                 ListTemplateUtils.HeaderStyle.CloneAndSetBackgroundColor(System.Drawing.Color.Blue)
                     .CloneAndSetFont(CellFont.CreateConfigFont().CloneAndSetColor(System.Drawing.Color.Red).CloneAndSetSize(18)),
@@ -85,8 +81,8 @@ namespace ExportSample {
             // 使用DataColumn<TProperty, TObject>，與前者差別在於ContentRender和ItemStyleFunctor能否指定x參數的型別
             lt.Columns.AddChildToLast<int>(
                 "年齡",
-                "age",
-                (x, y) => x > 18 ? 30 : 10,
+                x => x.Age,
+                (x, y) => x == 18 ? x - 0.1 : x,
                 ListTemplateUtils.HeaderStyle.CloneAndSetBackgroundColor(System.Drawing.Color.Blue)
                     .CloneAndSetFont(
                         CellFont.CreateConfigFont()
@@ -113,22 +109,23 @@ namespace ExportSample {
             sheeter.SetColumnWidth(1, Sheeter.AutoColumnWidth);
 
             // 測試健力第二個工作表
-            workbook.CreateSheeter("工作表1");
-            workbook.LastSheeter.SetColumnWidth(1, Sheeter.HiddenColumnWidth);
+            exporter.CreateSheeter("工作表1");
+            exporter.LastSheeter.SetColumnWidth(1, Sheeter.HiddenColumnWidth);
+        }
 
-            return workbook;
+        private class Person {
+            public string Name { get; set; }
+            public int Age { get; set; }
         }
 
         private IEnumerable<Person> People {
             get {
-                yield return new Person { Name = "Wing", Age = 18 };
-                yield return new Person { Name = "Wing2", Age = 20 };
+                yield return new Person { Name = "Wing分身1號", Age = 18 };
+                yield return new Person { Name = "Wing分身2號", Age = 19 };
+                yield return new Person { Name = "Wing分身3號", Age = 20 };
+                yield return new Person { Name = "Wing分身4號", Age = 21 };
+                yield return new Person { Name = "Wing分身5號", Age = 22 };
             }
-        }
-
-        public class Person {
-            public string Name { get; set; }
-            public int Age { get; set; }
         }
     }
 }
