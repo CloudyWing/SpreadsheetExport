@@ -34,7 +34,7 @@ namespace CloudyWing.Spreadsheet.Excel.NPOI {
             [VerticalAlignment.Bottom] = global::NPOI.SS.UserModel.VerticalAlignment.Bottom
         };
 
-        private Object thisLock = new Object();
+        private object thisLock = new object();
 
         public ExcelExporter(ExcelFormat excelFormat = ExcelFormat.XLS) {
             ExcelFormat = excelFormat;

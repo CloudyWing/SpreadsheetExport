@@ -4,8 +4,12 @@
 
 ## 專案說明
 
-Class Library使用Standard 2.0開發
-SpreadsheetExport：主專案，用於定義介面，與抽象類別、通用類別
-Excel.NPOI：封裝NPOI進行Excel匯出
-Excel.EPPlus：封裝EPPlus進行Excel匯出
-ExportSample：Sample專案
+Class Library使用Standard 2.0開發。
+
+SpreadsheetExport：主專案，用於定義介面，與抽象類別、通用類別。
+
+Excel.NPOI：封裝NPOI進行Excel匯出。
+
+Excel.EPPlus：封裝EPPlus進行Excel匯出。
+
+ExportSample：Sample專案。

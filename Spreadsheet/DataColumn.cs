@@ -126,7 +126,7 @@ namespace CloudyWing.Spreadsheet {
                 return value;
             }
 
-            return InternalFunc(ContentRender, value, valueObject);
+            return ChangeValueTypeForFunc(ContentRender, value, valueObject);
         }
 
         internal override CellStyle GetDataCellStyle(TObject valueObject) {
@@ -142,10 +142,10 @@ namespace CloudyWing.Spreadsheet {
             IDictionary<string, object> data = ConvertToDictionary(valueObject);
             object value = data[DataKey];
 
-            return InternalFunc(ItemStyleFunctor, value, valueObject);
+            return ChangeValueTypeForFunc(ItemStyleFunctor, value, valueObject);
         }
 
-        private TResult InternalFunc<TResult>(Func<TProperty, TObject, TResult> func, object value, TObject valueObject) {
+        private TResult ChangeValueTypeForFunc<TResult>(Func<TProperty, TObject, TResult> func, object value, TObject valueObject) {
 
             if (value == null) {
                 return func(default(TProperty), valueObject);

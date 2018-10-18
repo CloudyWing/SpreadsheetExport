@@ -8,13 +8,13 @@ namespace CloudyWing.Spreadsheet {
 
         public SheeterContext(string sheetName, IEnumerable<TemplateContext> templateContexts, IReadOnlyDictionary<int, double> columnWidths) {
             SheetName = sheetName;
-            InitialCellsAndRowHeights(templateContexts);
+            InitializeCellsAndRowHeights(templateContexts);
             ColumnWidths = columnWidths is IDictionary<int, short> ?
                 new ReadOnlyDictionary<int, double>((IDictionary<int, double>)columnWidths) :
                 columnWidths;
         }
 
-        private void InitialCellsAndRowHeights(IEnumerable<TemplateContext> templateContexts) {
+        private void InitializeCellsAndRowHeights(IEnumerable<TemplateContext> templateContexts) {
             List<Cell> cells = new List<Cell>();
             Dictionary<int, double> rowHeights = new Dictionary<int, double>();
             int rowIndex = 0;
