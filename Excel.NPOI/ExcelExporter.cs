@@ -10,15 +10,13 @@ using NPOI.SS.Util;
 using NPOI.XSSF.UserModel;
 
 namespace CloudyWing.Spreadsheet.Excel.NPOI {
-
     /// <summary>
     /// 使用NPOI進行Excel匯出
     /// </summary>
     public class ExcelExporter : ExporterBase {
-
         private IWorkbook workbook;
-        private IDictionary<CellStyle, ICellStyle> cellStyles = new Dictionary<CellStyle, ICellStyle>();
-        private IDictionary<CellFont, IFont> fonts = new Dictionary<CellFont, IFont>();
+        private readonly IDictionary<CellStyle, ICellStyle> cellStyles = new Dictionary<CellStyle, ICellStyle>();
+        private readonly IDictionary<CellFont, IFont> fonts = new Dictionary<CellFont, IFont>();
 
         private Dictionary<HorizontalAlignment, global::NPOI.SS.UserModel.HorizontalAlignment> horizontalAlignmentMap = new Dictionary<HorizontalAlignment, global::NPOI.SS.UserModel.HorizontalAlignment>() {
             [HorizontalAlignment.None] = global::NPOI.SS.UserModel.HorizontalAlignment.General,
@@ -34,7 +32,7 @@ namespace CloudyWing.Spreadsheet.Excel.NPOI {
             [VerticalAlignment.Bottom] = global::NPOI.SS.UserModel.VerticalAlignment.Bottom
         };
 
-        private object thisLock = new object();
+        private readonly object thisLock = new object();
 
         public ExcelExporter(ExcelFormat excelFormat = ExcelFormat.XLS) {
             ExcelFormat = excelFormat;
@@ -49,9 +47,7 @@ namespace CloudyWing.Spreadsheet.Excel.NPOI {
         public override string FileNameExtension => $".{ExcelFormat.ToString().ToLower()}";
 
         protected override byte[] ExecuteExport(SheeterContext[] contexts) {
-
-            lock(thisLock) {
-
+            lock (thisLock) {
                 // 因為ParseCellStyle和ParseFont會用到，所以用field處理
                 workbook = (IsXLS ? (IWorkbook)new HSSFWorkbook() : new XSSFWorkbook());
                 foreach (SheeterContext context in contexts) {
@@ -96,7 +92,6 @@ namespace CloudyWing.Spreadsheet.Excel.NPOI {
         }
 
         private ICellStyle ParseCellStyle(CellStyle cellStyle) {
-
             ICellStyle excelCellStyle;
 
             // 聽說CellStyle建立太多，可能會出現問題，所以如果有已存在的，就直接使用
@@ -139,7 +134,6 @@ namespace CloudyWing.Spreadsheet.Excel.NPOI {
         }
 
         private IFont ParseFont(CellFont font) {
-
             // 聽說CellStyle建立太多，可能會出現問題，所以如果有已存在的，就直接使用
             if (fonts.ContainsKey(font)) {
                 return fonts[font];
@@ -252,7 +246,7 @@ namespace CloudyWing.Spreadsheet.Excel.NPOI {
         private void SetSheetRowHeights(ISheet sheet, IReadOnlyDictionary<int, double> rowHeights) {
             foreach (KeyValuePair<int, double> pair in rowHeights) {
                 IRow row = sheet.GetRow(pair.Key) ?? sheet.CreateRow(pair.Key);
-                if (pair.Key <= 0) {
+                if (pair.Value <= 0) {
                     row.ZeroHeight = true;
                 } else {
                     row.Height = (short)(pair.Value * 20);
