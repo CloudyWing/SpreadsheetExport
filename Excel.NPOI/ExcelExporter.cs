@@ -18,7 +18,7 @@ namespace CloudyWing.Spreadsheet.Excel.NPOI {
         private readonly IDictionary<CellStyle, ICellStyle> cellStyles = new Dictionary<CellStyle, ICellStyle>();
         private readonly IDictionary<CellFont, IFont> fonts = new Dictionary<CellFont, IFont>();
 
-        private Dictionary<HorizontalAlignment, global::NPOI.SS.UserModel.HorizontalAlignment> horizontalAlignmentMap = new Dictionary<HorizontalAlignment, global::NPOI.SS.UserModel.HorizontalAlignment>() {
+        private readonly Dictionary<HorizontalAlignment, global::NPOI.SS.UserModel.HorizontalAlignment> horizontalAlignmentMap = new Dictionary<HorizontalAlignment, global::NPOI.SS.UserModel.HorizontalAlignment>() {
             [HorizontalAlignment.None] = global::NPOI.SS.UserModel.HorizontalAlignment.General,
             [HorizontalAlignment.Left] = global::NPOI.SS.UserModel.HorizontalAlignment.Left,
             [HorizontalAlignment.Center] = global::NPOI.SS.UserModel.HorizontalAlignment.Center,
@@ -26,7 +26,7 @@ namespace CloudyWing.Spreadsheet.Excel.NPOI {
             [HorizontalAlignment.Justify] = global::NPOI.SS.UserModel.HorizontalAlignment.Justify
         };
 
-        private Dictionary<VerticalAlignment, global::NPOI.SS.UserModel.VerticalAlignment> verticalAlignmentMap = new Dictionary<VerticalAlignment, global::NPOI.SS.UserModel.VerticalAlignment>() {
+        private readonly Dictionary<VerticalAlignment, global::NPOI.SS.UserModel.VerticalAlignment> verticalAlignmentMap = new Dictionary<VerticalAlignment, global::NPOI.SS.UserModel.VerticalAlignment>() {
             [VerticalAlignment.Top] = global::NPOI.SS.UserModel.VerticalAlignment.Top,
             [VerticalAlignment.Middle] = global::NPOI.SS.UserModel.VerticalAlignment.Center,
             [VerticalAlignment.Bottom] = global::NPOI.SS.UserModel.VerticalAlignment.Bottom

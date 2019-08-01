@@ -5,12 +5,10 @@ using System.Drawing;
 using static CloudyWing.Spreadsheet.ListTemplateUtils;
 
 namespace CloudyWing.Spreadsheet {
-
     /// <summary>
     /// Excel匯出資料各標題欄位設定
     /// </summary>
     public class DataColumn<T> {
-
         private DataColumnCollection<T> childColumns;
         private Point point;
 
@@ -118,7 +116,7 @@ namespace CloudyWing.Spreadsheet {
             IDictionary<string, object> data = ConvertToDictionary(valueObject);
 
             if (string.IsNullOrWhiteSpace(DataKey)) {
-                return ContentRender == null ? "" : ContentRender(default(TProperty), valueObject);
+                return ContentRender == null ? "" : ContentRender(default, valueObject);
             }
             object value = data[DataKey];
 
@@ -136,7 +134,7 @@ namespace CloudyWing.Spreadsheet {
             }
 
             if (string.IsNullOrWhiteSpace(DataKey)) {
-                return ItemStyleFunctor(default(TProperty), valueObject);
+                return ItemStyleFunctor(default, valueObject);
             }
 
             IDictionary<string, object> data = ConvertToDictionary(valueObject);
@@ -148,7 +146,7 @@ namespace CloudyWing.Spreadsheet {
         private TResult ChangeValueTypeForFunc<TResult>(Func<TProperty, TObject, TResult> func, object value, TObject valueObject) {
 
             if (value == null) {
-                return func(default(TProperty), valueObject);
+                return func(default, valueObject);
             }
 
             Type fromType = Nullable.GetUnderlyingType(value.GetType()) ?? value.GetType();

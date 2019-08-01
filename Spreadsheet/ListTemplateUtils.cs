@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 
 namespace CloudyWing.Spreadsheet {
-
     public static class ListTemplateUtils {
-
         /// <summary>
         /// Config設定的格式、粗體、置中
         /// </summary>

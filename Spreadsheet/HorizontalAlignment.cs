@@ -4,7 +4,6 @@ using System.ComponentModel;
 using System.Globalization;
 
 namespace CloudyWing.Spreadsheet {
-
     [TypeConverter(typeof(HorizontalAlignmentConverter))]
     public enum HorizontalAlignment {
         None = 0,
@@ -15,8 +14,7 @@ namespace CloudyWing.Spreadsheet {
     }
 
     internal class HorizontalAlignmentConverter : EnumConverter {
-
-        private static Dictionary<string, HorizontalAlignment> valueMap = new Dictionary<string, HorizontalAlignment>(StringComparer.OrdinalIgnoreCase) {
+        private static readonly Dictionary<string, HorizontalAlignment> valueMap = new Dictionary<string, HorizontalAlignment>(StringComparer.OrdinalIgnoreCase) {
             [nameof(HorizontalAlignment.None)] = HorizontalAlignment.None,
             [nameof(HorizontalAlignment.Center)] = HorizontalAlignment.Center,
             [nameof(HorizontalAlignment.Right)] = HorizontalAlignment.Right,
