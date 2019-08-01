@@ -6,20 +6,18 @@ using System.Linq;
 using static CloudyWing.Spreadsheet.ListTemplateUtils;
 
 namespace CloudyWing.Spreadsheet {
-
     /// <summary>
     /// 利用設定DataSource和DataColumn來產出資料清單式樣板
     /// </summary>
     /// <typeparam name="T">每筆資料的型別</typeparam>
     public class ListTemplate<T> : ITemplate {
-
         public IEnumerable<T> DataSource { get; set; }
 
         public DataColumnCollection<T> Columns { get; } = new DataColumnCollection<T>(null);
 
-        public double HeaderHeight { get; set; }
+        public double HeaderHeight { get; set; } = 16.5d;
 
-        public double ItemHeight { get; set; }
+        public double ItemHeight { get; set; } = 16.5d;
 
         public int ColumnSpan => Columns.ColumnSpan;
 
@@ -61,8 +59,8 @@ namespace CloudyWing.Spreadsheet {
 
         public IReadOnlyDictionary<int, double> RowHeights {
             get {
-                int i = 0;
                 Dictionary<int, double> dic = new Dictionary<int, double>();
+                int i;
                 for (i = 0; i < Columns.RowSpan; i++) {
                     dic.Add(i, HeaderHeight);
                 }

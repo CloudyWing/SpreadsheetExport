@@ -6,17 +6,13 @@ using System.Drawing;
 using System.Linq;
 
 namespace CloudyWing.Spreadsheet {
-
     /// <summary>
     /// 使用CreateRow()與CreateCell()建立Spreadsheet樣板，概念上等同於html的table
     /// </summary>
     public class GridTemplate : ITemplate {
-
-        private IList<CellCollection> rows = new List<CellCollection>();
-        private IList<Point> points = new List<Point>();
-        private IDictionary<int, double> rowHeights = new Dictionary<int, double>();
-
-        public GridTemplate() { }
+        private readonly IList<CellCollection> rows = new List<CellCollection>();
+        private readonly IList<Point> points = new List<Point>();
+        private readonly IDictionary<int, double> rowHeights = new Dictionary<int, double>();
 
         public int ColumnSpan => points.Count == 0 ? 0 : points.Max(x => x.X) + 1;
 
@@ -34,7 +30,7 @@ namespace CloudyWing.Spreadsheet {
 
         public IReadOnlyDictionary<int, double> RowHeights => new ReadOnlyDictionary<int, double>(rowHeights);
 
-        public void CreateRow(double height = 0) {
+        public void CreateRow(double height = 16.5d) {
             // 避免建立最後一筆Row，卻沒加入Cell導致用作標算列數會不正確，所以加一個-x座標
             points.Add(new Point(-1, rows.Count));
             rowHeights.Add(rows.Count, height);
@@ -77,8 +73,8 @@ namespace CloudyWing.Spreadsheet {
         }
 
         private class CellCollection : IEnumerable<Cell>, IEnumerable {
-            private GridTemplate grid;
-            private IList<Cell> items = new List<Cell>();
+            private readonly GridTemplate grid;
+            private readonly IList<Cell> items = new List<Cell>();
 
             internal CellCollection(GridTemplate grid) {
                 this.grid = grid;
@@ -90,7 +86,7 @@ namespace CloudyWing.Spreadsheet {
                 item.Point = new Point(0, grid.rows.Count - 1);
 
                 while (IsPointExists(item.Point)) {
-                    item.Point = item.Point + new Size(1, 0);
+                    item.Point += new Size(1, 0);
                 }
                 grid.points.Add(item.Point);
 
