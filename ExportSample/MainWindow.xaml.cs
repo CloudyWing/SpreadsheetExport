@@ -4,7 +4,6 @@ using System.Windows;
 using CloudyWing.Spreadsheet;
 
 namespace ExportSample {
-
     /// <summary>
     /// MainWindow.xaml 的互動邏輯
     /// </summary>
@@ -16,7 +15,7 @@ namespace ExportSample {
         private void ExportNpoiXls(object sender, RoutedEventArgs e) {
             ExporterBase exporter = new CloudyWing.Spreadsheet.Excel.NPOI.ExcelExporter();
             CreateExportkContent(exporter);
-            exporter.ExportFile($@"{txtPath.Text}\{DateTime.Now.ToString("yyyyMMddhhmmss")}.{exporter.FileNameExtension}");
+            exporter.ExportFile($@"{txtPath.Text}\{DateTime.Now.ToString("yyyyMMddhhmmss")}{exporter.FileNameExtension}");
         }
 
         private void ExportNpoiXlsx(object sender, RoutedEventArgs e) {
@@ -24,13 +23,13 @@ namespace ExportSample {
                 CloudyWing.Spreadsheet.Excel.NPOI.ExcelFormat.XLSX
             );
             CreateExportkContent(exporter);
-            exporter.ExportFile($@"{txtPath.Text}\{DateTime.Now.ToString("yyyyMMddhhmmss")}.{exporter.FileNameExtension}");
+            exporter.ExportFile($@"{txtPath.Text}\{DateTime.Now.ToString("yyyyMMddhhmmss")}{exporter.FileNameExtension}");
         }
 
         private void ExportEPPlus(object sender, RoutedEventArgs e) {
             ExporterBase exporter = new CloudyWing.Spreadsheet.Excel.EPPlus.ExcelExporter();
             CreateExportkContent(exporter);
-            exporter.ExportFile($@"{txtPath.Text}\{DateTime.Now.ToString("yyyyMMddhhmmss")}.{exporter.FileNameExtension}");
+            exporter.ExportFile($@"{txtPath.Text}\{DateTime.Now.ToString("yyyyMMddhhmmss")}{exporter.FileNameExtension}");
         }
 
         private void CreateExportkContent(ExporterBase exporter) {

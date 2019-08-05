@@ -8,7 +8,7 @@
         Title="MainWindow" Height="350" Width="525">
     <Grid>
         <Label Content="儲存路徑：" HorizontalAlignment="Left" Margin="100,50,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.555,-0.37"/>
-        <TextBox Name="txtPath" HorizontalAlignment="Left" Height="23" Margin="175,50,0,0" TextWrapping="Wrap" Text="D:\Desktop" VerticalAlignment="Top" Width="200"/>
+        <TextBox Name="txtPath" HorizontalAlignment="Left" Height="23" Margin="175,50,0,0" TextWrapping="Wrap" Text="D:" VerticalAlignment="Top" Width="200"/>
         <Button Content="使用NPOI匯出XLS" HorizontalAlignment="Left" Margin="100,100,0,0" VerticalAlignment="Top" Width="150" Click="ExportNpoiXls"/>
         <Button Content="使用NPOI匯出XLSX" HorizontalAlignment="Left" Margin="100,150,0,0" VerticalAlignment="Top" Width="150" Click="ExportNpoiXlsx"/>
         <Button Content="使用EPPlus匯出XLSX" HorizontalAlignment="Left" Margin="100,200,0,0" VerticalAlignment="Top" Width="150" Click="ExportEPPlus"/>

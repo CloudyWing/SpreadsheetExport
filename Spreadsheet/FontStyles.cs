@@ -1,7 +1,6 @@
 ﻿using System;
 
 namespace CloudyWing.Spreadsheet {
-
     [Flags]
     public enum FontStyles {
         None = 0,

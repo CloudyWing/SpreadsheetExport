@@ -4,10 +4,8 @@ using OfficeOpenXml;
 using OfficeOpenXml.Style;
 
 namespace CloudyWing.Spreadsheet.Excel.EPPlus {
-
     public class ExcelExporter : ExporterBase {
-
-        private Dictionary<HorizontalAlignment, ExcelHorizontalAlignment> horizontalAlignmentMap = new Dictionary<HorizontalAlignment, ExcelHorizontalAlignment>() {
+        private readonly Dictionary<HorizontalAlignment, ExcelHorizontalAlignment> horizontalAlignmentMap = new Dictionary<HorizontalAlignment, ExcelHorizontalAlignment>() {
             [HorizontalAlignment.None] = ExcelHorizontalAlignment.General,
             [HorizontalAlignment.Left] = ExcelHorizontalAlignment.Left,
             [HorizontalAlignment.Center] = ExcelHorizontalAlignment.Center,
@@ -15,7 +13,7 @@ namespace CloudyWing.Spreadsheet.Excel.EPPlus {
             [HorizontalAlignment.Justify] = ExcelHorizontalAlignment.Justify
         };
 
-        private Dictionary<VerticalAlignment, ExcelVerticalAlignment> verticalAlignmentMap = new Dictionary<VerticalAlignment, ExcelVerticalAlignment>() {
+        private readonly Dictionary<VerticalAlignment, ExcelVerticalAlignment> verticalAlignmentMap = new Dictionary<VerticalAlignment, ExcelVerticalAlignment>() {
             [VerticalAlignment.Top] = ExcelVerticalAlignment.Top,
             [VerticalAlignment.Middle] = ExcelVerticalAlignment.Center,
             [VerticalAlignment.Bottom] = ExcelVerticalAlignment.Bottom

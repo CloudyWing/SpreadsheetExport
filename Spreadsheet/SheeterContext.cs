@@ -3,9 +3,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 
 namespace CloudyWing.Spreadsheet {
-
     public class SheeterContext {
-
         public SheeterContext(string sheetName, IEnumerable<TemplateContext> templateContexts, IReadOnlyDictionary<int, double> columnWidths) {
             SheetName = sheetName;
             InitializeCellsAndRowHeights(templateContexts);

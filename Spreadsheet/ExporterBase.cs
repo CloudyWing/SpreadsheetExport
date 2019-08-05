@@ -4,13 +4,11 @@ using System.IO;
 using System.Linq;
 
 namespace CloudyWing.Spreadsheet {
-
     /// <summary>
     /// 電子表格，用來設定電子表格內容將之輸出至Exporter
     /// </summary>
     public abstract class ExporterBase {
-
-        private IList<Sheeter> sheeters = new List<Sheeter>();
+        private readonly IList<Sheeter> sheeters = new List<Sheeter>();
 
         /// <summary>
         /// 取得最新的工作表，若無則建立一個工作表
@@ -62,7 +60,7 @@ namespace CloudyWing.Spreadsheet {
         /// 電子表格匯出
         /// </summary>
         /// <exception cref="ArgumentNullException">未建立任何工作表。</exception>
-        public Byte[] Export() {
+        public byte[] Export() {
             Validate();
             SheeterContext[] contexts = new SheeterContext[sheeters.Count];
             for (int i = 0; i < sheeters.Count; i++) {
@@ -77,7 +75,7 @@ namespace CloudyWing.Spreadsheet {
             return ExecuteExport(contexts);
         }
 
-        protected abstract Byte[] ExecuteExport(SheeterContext[] contexts);
+        protected abstract byte[] ExecuteExport(SheeterContext[] contexts);
 
         /// <exception cref="NullReferenceException">未建立任何工作表。</exception>
         private void Validate() {

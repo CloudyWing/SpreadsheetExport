@@ -7,10 +7,8 @@ using System.Linq.Expressions;
 using static CloudyWing.Spreadsheet.ListTemplateUtils;
 
 namespace CloudyWing.Spreadsheet {
-
     public class DataColumnCollection<T> : Collection<DataColumn<T>> {
-
-        private DataColumn<T> parentItem;
+        private readonly DataColumn<T> parentItem;
 
         internal DataColumnCollection(DataColumn<T> cell) {
             parentItem = cell;
@@ -55,7 +53,7 @@ namespace CloudyWing.Spreadsheet {
 
             foreach (DataColumn<T> item in this) {
                 item.Point = point + offset;
-                offset.Width = offset.Width + item.ColumnSpan;
+                offset.Width += item.ColumnSpan;
             }
         }
 
@@ -116,9 +114,8 @@ namespace CloudyWing.Spreadsheet {
 
             // 如果是Value Type 的話Body會是UnaryExpression
             // Reference Type才會是直接取得到MemberExpression
-            UnaryExpression unary = expression.Body as UnaryExpression;
             MemberExpression member = expression.Body as MemberExpression ??
-                (unary != null ? unary.Operand as MemberExpression : null);
+                (expression.Body is UnaryExpression unary ? unary.Operand as MemberExpression : null);
 
             if (member == null) {
                 throw new ArgumentException($"Expression格式錯誤。", nameof(expression));

@@ -4,7 +4,6 @@ using System.ComponentModel;
 using System.Globalization;
 
 namespace CloudyWing.Spreadsheet {
-
     [TypeConverter(typeof(VerticalAlignmentConverter))]
     public enum VerticalAlignment {
         Top = 0,
@@ -13,8 +12,7 @@ namespace CloudyWing.Spreadsheet {
     }
 
     internal class VerticalAlignmentConverter : EnumConverter {
-
-        private static Dictionary<string, VerticalAlignment> valueMap = new Dictionary<string, VerticalAlignment>(StringComparer.OrdinalIgnoreCase) {
+        private static readonly Dictionary<string, VerticalAlignment> valueMap = new Dictionary<string, VerticalAlignment>(StringComparer.OrdinalIgnoreCase) {
             [nameof(VerticalAlignment.Top)] = VerticalAlignment.Top,
             [nameof(VerticalAlignment.Middle)] = VerticalAlignment.Middle,
             [nameof(VerticalAlignment.Bottom)] = VerticalAlignment.Bottom
@@ -57,7 +55,7 @@ namespace CloudyWing.Spreadsheet {
             if (destinationType == typeof(string) && valueMap.ContainsValue((VerticalAlignment)value)) {
                 return value.ToString();
             }
-            
+
             return base.ConvertTo(context, culture, value, destinationType);
         }
     }
