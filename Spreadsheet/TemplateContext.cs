@@ -3,9 +3,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace CloudyWing.Spreadsheet {
-
     public class TemplateContext {
-
         public TemplateContext(
             IEnumerable<Cell> cells, int columnSpan, int rowSpan, IReadOnlyDictionary<int, double> rowHeights
         ) {

@@ -2,9 +2,7 @@
 using CloudyWing.Spreadsheet.Properties;
 
 namespace CloudyWing.Spreadsheet {
-
     public struct CellFont {
-
         public static CellFont Empty = new CellFont();
 
         public static bool operator ==(CellFont font1, CellFont font2) {
@@ -106,19 +104,19 @@ namespace CloudyWing.Spreadsheet {
         public static CellFont CreateConfigFont() {
             FontStyles style = FontStyles.None;
             if (Settings.Default.IsBold) {
-                style = style | FontStyles.IsBold;
+                style |= FontStyles.IsBold;
             }
 
             if (Settings.Default.IsItalic) {
-                style = style | FontStyles.IsItalic;
+                style |= FontStyles.IsItalic;
             }
 
             if (Settings.Default.HasUnderline) {
-                style = style | FontStyles.HasUnderline;
+                style |= FontStyles.HasUnderline;
             }
 
             if (Settings.Default.IsStrikeout) {
-                style = style | FontStyles.IsStrikeout;
+                style |= FontStyles.IsStrikeout;
             }
 
             return new CellFont(

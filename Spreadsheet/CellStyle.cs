@@ -1,11 +1,8 @@
-﻿using System;
-using System.Drawing;
+﻿using System.Drawing;
 using CloudyWing.Spreadsheet.Properties;
 
 namespace CloudyWing.Spreadsheet {
-
     public struct CellStyle {
-
         public static CellStyle Empty = new CellStyle();
 
         public static bool operator ==(CellStyle style1, CellStyle style2) {

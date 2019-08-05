@@ -2,18 +2,16 @@
 using System.Collections.ObjectModel;
 
 namespace CloudyWing.Spreadsheet {
-
     /// <summary>
     /// 紀錄工作表的格式
     /// </summary>
     public class Sheeter {
+        public const double AutoColumnWidth = -1d;
+        public const double HiddenColumnWidth = 0d;
+        public const double HiddenRowHeight = 0d;
 
-        public static double AutoColumnWidth = -1d;
-        public static double HiddenColumnWidth = 0d;
-        public static double HiddenRowHeight = 0d;
-
-        private IDictionary<int, double> columnWidths = new Dictionary<int, double>();
-        private IList<ITemplate> templates = new List<ITemplate>();
+        private readonly IDictionary<int, double> columnWidths = new Dictionary<int, double>();
+        private readonly IList<ITemplate> templates = new List<ITemplate>();
 
         internal Sheeter(string sheetName) {
             SheetName = sheetName;
