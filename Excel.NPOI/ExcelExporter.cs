@@ -172,14 +172,17 @@ namespace CloudyWing.Spreadsheet.Excel.NPOI {
         /// HSSFColor無法用Color設定顏色，所以如果xls版本就使用Reflection找出對應顏色Index
         /// </summary>
         private short ParseColor(Color color) {
-
             //找出此Type下公用的class
             Type[] colorTypes = typeof(HSSFColor).GetNestedTypes(BindingFlags.Public);
 
             foreach (Type type in colorTypes) {
-                byte[] rgb = type.GetField("Triplet", BindingFlags.Public | BindingFlags.Static).GetValue(null) as byte[];
-                if (rgb[0] == color.R && rgb[1] == color.G && rgb[2] == color.B) {
-                    return (short)type.GetField("Index").GetValue(null);
+                FieldInfo field = type.GetField("Triplet", BindingFlags.Public | BindingFlags.Static);
+                // Automatic這個顏色沒有Triplet
+                if (field != null) {
+                    byte[] rgb = field.GetValue(null) as byte[];
+                    if (rgb[0] == color.R && rgb[1] == color.G && rgb[2] == color.B) {
+                        return (short)type.GetField("Index").GetValue(null);
+                    }
                 }
             }
             return 0;
