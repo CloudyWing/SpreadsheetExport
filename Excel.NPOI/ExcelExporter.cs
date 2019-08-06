@@ -17,6 +17,10 @@ namespace CloudyWing.Spreadsheet.Excel.NPOI {
         private IWorkbook workbook;
         private readonly IDictionary<CellStyle, ICellStyle> cellStyles = new Dictionary<CellStyle, ICellStyle>();
         private readonly IDictionary<CellFont, IFont> fonts = new Dictionary<CellFont, IFont>();
+        private static readonly IDictionary<ExcelFormat, string> filenameExtensionMap = new Dictionary<ExcelFormat, string> {
+            [ExcelFormat.ExcelBinaryFileFormat] = ".xls",
+            [ExcelFormat.OfficeOpenXmlDocument] = ".xlsx"
+        };
 
         private readonly Dictionary<HorizontalAlignment, global::NPOI.SS.UserModel.HorizontalAlignment> horizontalAlignmentMap = new Dictionary<HorizontalAlignment, global::NPOI.SS.UserModel.HorizontalAlignment>() {
             [HorizontalAlignment.None] = global::NPOI.SS.UserModel.HorizontalAlignment.General,
@@ -34,22 +38,22 @@ namespace CloudyWing.Spreadsheet.Excel.NPOI {
 
         private readonly object thisLock = new object();
 
-        public ExcelExporter(ExcelFormat excelFormat = ExcelFormat.XLS) {
+        public ExcelExporter(ExcelFormat excelFormat = ExcelFormat.OfficeOpenXmlDocument) {
             ExcelFormat = excelFormat;
         }
 
         public ExcelFormat ExcelFormat { get; set; }
 
-        public bool IsXLS => ExcelFormat == ExcelFormat.XLS;
+        public bool IsOfficeOpenXmlDocument => ExcelFormat == ExcelFormat.OfficeOpenXmlDocument;
 
         public override string ContentType => "application/ms-excel";
 
-        public override string FileNameExtension => $".{ExcelFormat.ToString().ToLower()}";
+        public override string FileNameExtension => filenameExtensionMap[ExcelFormat];
 
         protected override byte[] ExecuteExport(SheeterContext[] contexts) {
             lock (thisLock) {
                 // 因為ParseCellStyle和ParseFont會用到，所以用field處理
-                workbook = (IsXLS ? (IWorkbook)new HSSFWorkbook() : new XSSFWorkbook());
+                workbook = IsOfficeOpenXmlDocument ? new XSSFWorkbook() : (IWorkbook)new HSSFWorkbook();
                 foreach (SheeterContext context in contexts) {
                     CreateSheet(context);
                 }
@@ -113,10 +117,10 @@ namespace CloudyWing.Spreadsheet.Excel.NPOI {
             excelCellStyle.WrapText = cellStyle.WrapText;
             if (cellStyle.BackgroundColor != Color.Empty) {
                 excelCellStyle.FillPattern = FillPattern.SolidForeground;
-                if (IsXLS) {
-                    excelCellStyle.FillForegroundColor = ParseColor(cellStyle.BackgroundColor);
-                } else {
+                if (IsOfficeOpenXmlDocument) {
                     ((XSSFCellStyle)excelCellStyle).SetFillForegroundColor(new XSSFColor(cellStyle.BackgroundColor));
+                } else {
+                    excelCellStyle.FillForegroundColor = ParseColor(cellStyle.BackgroundColor);
                 }
             }
 
