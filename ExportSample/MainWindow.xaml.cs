@@ -13,15 +13,15 @@ namespace ExportSample {
         }
 
         private void ExportNpoiXls(object sender, RoutedEventArgs e) {
-            ExporterBase exporter = new CloudyWing.Spreadsheet.Excel.NPOI.ExcelExporter();
+            ExporterBase exporter = new CloudyWing.Spreadsheet.Excel.NPOI.ExcelExporter(
+                CloudyWing.Spreadsheet.Excel.NPOI.ExcelFormat.ExcelBinaryFileFormat
+            );
             CreateExportkContent(exporter);
             exporter.ExportFile($@"{txtPath.Text}\{DateTime.Now.ToString("yyyyMMddhhmmss")}{exporter.FileNameExtension}");
         }
 
         private void ExportNpoiXlsx(object sender, RoutedEventArgs e) {
-            ExporterBase exporter = new CloudyWing.Spreadsheet.Excel.NPOI.ExcelExporter(
-                CloudyWing.Spreadsheet.Excel.NPOI.ExcelFormat.XLSX
-            );
+            ExporterBase exporter = new CloudyWing.Spreadsheet.Excel.NPOI.ExcelExporter();
             CreateExportkContent(exporter);
             exporter.ExportFile($@"{txtPath.Text}\{DateTime.Now.ToString("yyyyMMddhhmmss")}{exporter.FileNameExtension}");
         }
@@ -107,7 +107,7 @@ namespace ExportSample {
             // 第二欄自動調整欄寬
             sheeter.SetColumnWidth(1, Sheeter.AutoColumnWidth);
 
-            // 測試健力第二個工作表
+            // 測試建力第二個工作表
             exporter.CreateSheeter("工作表1");
             exporter.LastSheeter.SetColumnWidth(1, Sheeter.HiddenColumnWidth);
         }
