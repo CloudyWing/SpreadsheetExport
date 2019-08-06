@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 // 變更這些屬性的值即可修改組件的相關
 // 資訊。
 [assembly: AssemblyTitle("ExcelExporter")]
-[assembly: AssemblyDescription("使用EPPlus(v4.4.0)產出Excel")]
+[assembly: AssemblyDescription("使用EPPlus產出Excel")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("雲翼")]
 [assembly: AssemblyProduct("ExcelExporter")]
@@ -32,5 +32,5 @@ using System.Runtime.InteropServices;
 //方法是使用 '*'，如下所示:
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("1.0.0.0")]
-[assembly: AssemblyFileVersion("1.0.1.0")]
-[assembly: AssemblyInformationalVersion("1.0.1")]
+[assembly: AssemblyFileVersion("1.0.19218.0")]
+[assembly: AssemblyInformationalVersion("1.0.0")]
