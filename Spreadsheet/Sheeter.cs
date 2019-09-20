@@ -8,6 +8,7 @@ namespace CloudyWing.Spreadsheet {
     public class Sheeter {
         public const double AutoColumnWidth = -1d;
         public const double HiddenColumnWidth = 0d;
+        public const double AutoRowHeight = -1d;
         public const double HiddenRowHeight = 0d;
 
         private readonly IDictionary<int, double> columnWidths = new Dictionary<int, double>();
