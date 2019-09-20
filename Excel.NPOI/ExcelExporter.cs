@@ -253,7 +253,9 @@ namespace CloudyWing.Spreadsheet.Excel.NPOI {
         private void SetSheetRowHeights(ISheet sheet, IReadOnlyDictionary<int, double> rowHeights) {
             foreach (KeyValuePair<int, double> pair in rowHeights) {
                 IRow row = sheet.GetRow(pair.Key) ?? sheet.CreateRow(pair.Key);
-                if (pair.Value <= 0) {
+                if (pair.Value < 0) {
+                    row.Height = -1;
+                } else if (pair.Value == 0) {
                     row.ZeroHeight = true;
                 } else {
                     row.Height = (short)(pair.Value * 20);
